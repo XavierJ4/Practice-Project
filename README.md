@@ -55,10 +55,3 @@ A Django-based social feed web application where users can sign up, create posts
 - UI styled with [Tailwind CSS](https://tailwindcss.com/)
 - Authentication handled by [django-allauth](https://django-allauth.readthedocs.io/en/latest/)
 
-## License
-
-MIT License
-
----
-
-Feel free to add more sections for API, contributing, or screenshots!
