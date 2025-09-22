@@ -4,12 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
 django-allauth = "*"
 sorl-thumbnail = "*"
 pillow = "*"
+django = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.9"
+python_version = "3.13.2"

@@ -59,17 +59,20 @@ class CreateNewPost(LoginRequiredMixin, CreateView):
     def post(self, request, *args, **kwargs):
         # TODO: There is a bug here when you go to /new/ to create a post.
         # You must figure out how to determine if this is an Ajax request (or not an ajax request).
-        post = Post.objects.create(
-            text=request.POST.get("text"),
-            author=request.user,
-        )
-
-        return render(
-            request,
-            "includes/post.html",
-            {
-                "post": post,
-                "show_detail_link": True,
-            },
-            content_type="application/html"
-        )
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            post = Post.objects.create(
+                text=request.POST.get("text"),
+                author=request.user,
+            )
+            return render(
+                request,
+                "includes/post.html",
+                {
+                    "post": post,
+                    "show_detail_link": True,
+                },
+                content_type="application/html"
+            )
+        else:
+            # Handle normal form POST (non-Ajax)
+            return super().post(request, *args, **kwargs)

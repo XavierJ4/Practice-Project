@@ -2,9 +2,15 @@ from django.contrib.auth.models import User
 from django.views.generic import DetailView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponseBadRequest
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.shortcuts import render, redirect
 
 from feed.models import Post
 from followers.models import Follower
+from .models import Profile
+from .forms import CustomUserChangeForm, ProfileForm, PasswordChangeForm
 
 
 class ProfileDetailView(DetailView):
@@ -66,3 +72,26 @@ class FollowView(LoginRequiredMixin, View):
             'success': True,
             'wording': "Unfollow" if data['action'] == "follow" else "Follow"
         })
+
+
+@login_required
+def account_settings(request):
+    user_form = CustomUserChangeForm(request.POST or None, instance=request.user)
+    profile_form = ProfileForm(request.POST or None, request.FILES or None, instance=request.user.profile)
+    password_form = PasswordChangeForm(request.user, request.POST or None)
+
+    if request.method == "POST":
+        if "update_user" in request.POST and user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            return redirect("profiles:account_settings")
+        elif "change_password" in request.POST and password_form.is_valid():
+            user = password_form.save()
+            update_session_auth_hash(request, user)
+            return redirect("profiles:account_settings")
+
+    return render(request, "profiles/account_settings.html", {
+        "user_form": user_form,
+        "profile_form": profile_form,
+        "password_form": password_form,
+    })
